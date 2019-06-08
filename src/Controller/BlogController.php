@@ -35,7 +35,7 @@ class BlogController extends AbstractController
      * @Route("/{page}", name="blog_list", defaults={"page"=1})
      */
     public function list($page){
-        return new JsonResponse(
+        return $this->json(
             [
                 'page' => $page,
                 'data' => self::POSTS
@@ -47,7 +47,7 @@ class BlogController extends AbstractController
      * @Route("/post/{id}", name="blog_post", requirements={"id"="\d+"})
      */
     public function post($id){
-        return new JsonResponse(self::POSTS[
+        return $this->json(self::POSTS[
             array_search($id, array_column(self::POSTS, 'id'))
         ]);
     }
@@ -56,7 +56,7 @@ class BlogController extends AbstractController
      * @Route("/post/{slug}", name="blog_post_by_slug")
      */
     public function postBySlug($slug){
-        return new JsonResponse(self::POSTS[
+        return $this->json(self::POSTS[
             array_search($slug, array_column(self::POSTS, 'slug'))
         ]);
     }
