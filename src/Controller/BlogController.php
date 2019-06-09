@@ -8,6 +8,7 @@ use App\Entity\BlogPost;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
@@ -17,7 +18,13 @@ use Symfony\Component\Serializer\Serializer;
 class BlogController extends AbstractController
 {
     /**
-     * @Route("/{page}", name="blog_list", defaults={"page"=1}, requirements={"page"="\d+"})
+     * @Route(
+     *     "/{page}",
+     *     name="blog_list",
+     *     defaults={"page"=1},
+     *     requirements={"page"="\d+"},
+     *     methods={"GET"}
+     *     )
      */
     public function list($page, Request $request){
         $limit = $request->get('limit', 10);
@@ -36,31 +43,38 @@ class BlogController extends AbstractController
     }
 
     /**
-     * @Route("/post/{id}", name="blog_post_by_id", requirements={"id"="\d+"})
+     * @Route(
+     *     "/post/{id}",
+     *     name="blog_post_by_id",
+     *     requirements={"id"="\d+"},
+     *     methods={"GET"}
+     *     )
      */
-    public function post($id){
-        $repository = $this->getDoctrine()->getRepository(BlogPost::class);
-        $blogPost = $repository->find($id);
-
+    public function post(BlogPost $blogPost){
         return $this->json(
             $blogPost
         );
     }
 
     /**
-     * @Route("/post/{slug}", name="blog_post_by_slug")
+     * @Route(
+     *     "/post/{slug}",
+     *     name="blog_post_by_slug",
+     *     methods={"GET"}
+     *     )
      */
-    public function postBySlug($slug){
-        $repository = $this->getDoctrine()->getRepository(BlogPost::class);
-        $blogPost = $repository->findOneBy(['slug' => $slug]);
-
+    public function postBySlug(BlogPost $blogPost){
         return $this->json(
             $blogPost
         );
     }
 
     /**
-     * @Route("/add", name="blog_add", methods={"POST"})
+     * @Route(
+     *     "/add",
+     *     name="blog_add",
+     *     methods={"POST"}
+     *     )
      */
     public function add(Request $request){
         /** @var Serializer $serializer */
@@ -75,5 +89,20 @@ class BlogController extends AbstractController
         $em->flush();
 
         return $this->json($blogPost);
+    }
+
+    /**
+     * @Route(
+     *     "/delete/{id}",
+     *     name="blog_delete",
+     *     methods={"DELETE"}
+     *     )
+     */
+    public function delete(BlogPost $blogPost){
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($blogPost);
+        $em->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }
